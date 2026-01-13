@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pudim de Leite | Tradição & Sabor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        'colonial-white': '#FDFBF7', // Creme antigo
+                        'colonial-gold': '#C5A059',  // Dourado envelhecido
+                        'colonial-wood': '#2C1810',  // Madeira escura/Café
+                        'colonial-black': '#121212', // Preto suave
+                        'colonial-tan': '#D7CCC8',   // Bege
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+            will-change: opacity, visibility;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: none;
+        }
+        
+        .floating-container {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Moldura Rústica/Clássica */
+        .classic-frame {
+            border: 8px solid white;
+            outline: 2px solid #C5A059; /* Dourado */
+            outline-offset: -4px;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+
+        /* Modal Transitions */
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .modal.hidden .modal-content {
+            transform: scale(0.95) translateY(10px);
+        }
+        
+        /* Mobile Optimizations */
+        input, textarea, select {
+            font-size: 16px !important; 
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #FDFBF7;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2C1810;
+            border-radius: 10px;
+        }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            transform: translateX(120%);
+            transition: transform 0.4s ease-out;
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="antialiased text-colonial-wood bg-colonial-white">
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-colonial-wood shadow-xl h-16 md:h-20 flex items-center border-b border-colonial-gold/30" id="navbar">
+        <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="bg-colonial-gold p-1 rounded-full">
+                         <i data-lucide="utensils-crossed" class="text-colonial-wood w-5 h-5 md:w-6 md:h-6"></i>
+                    </div>
+                    <span class="font-serif text-xl md:text-2xl font-bold text-colonial-white tracking-widest uppercase">Pudim de <span class="text-colonial-gold">Leite</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#tradicional" class="text-colonial-white/80 hover:text-colonial-gold font-serif tracking-wide transition">O Tradicional</a>
+                    <a href="#gourmet" class="text-colonial-white/80 hover:text-colonial-gold font-serif tracking-wide transition">Gourmet</a>
+                    <a href="#supremo" class="text-colonial-white/80 hover:text-colonial-gold font-serif tracking-wide transition">Supremo</a>
+                    
+                    <!-- Cart Button Desktop -->
+                    <button onclick="openCart()" class="relative p-2 text-colonial-gold hover:text-white transition group border border-colonial-gold/20 rounded-full hover:bg-colonial-gold/10">
+                        <i data-lucide="shopping-basket" class="w-6 h-6 group-hover:scale-105 transition-transform"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-colonial-wood transform bg-white rounded-full opacity-0 transition-opacity shadow-sm border border-colonial-wood">0</span>
+                    </button>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center gap-4">
+                    <button onclick="openCart()" class="relative p-2 text-colonial-gold">
+                        <i data-lucide="shopping-basket" class="w-6 h-6"></i>
+                        <span id="mobile-cart-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-colonial-wood bg-white rounded-full opacity-0 transition-opacity">0</span>
+                    </button>
+                    <button id="mobile-menu-btn" class="text-colonial-white hover:text-colonial-gold focus:outline-none p-1">
+                        <i data-lucide="menu" class="w-7 h-7"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden absolute top-16 left-0 w-full bg-colonial-wood border-b border-colonial-gold p-4 shadow-2xl flex-col gap-2 md:hidden">
+            <a href="#tradicional" onclick="toggleMenu()" class="block py-3 px-4 rounded hover:bg-black/20 text-colonial-white font-serif border-b border-white/5">O Tradicional</a>
+            <a href="#gourmet" onclick="toggleMenu()" class="block py-3 px-4 rounded hover:bg-black/20 text-colonial-white font-serif border-b border-white/5">Gourmet</a>
+            <a href="#supremo" onclick="toggleMenu()" class="block py-3 px-4 rounded hover:bg-black/20 text-colonial-white font-serif">Supremo</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative w-full overflow-hidden z-0 mt-16 md:mt-20 h-[60vh] md:h-[75vh]">
+        <!-- Imagem 1: Hero Background -->
+        <div class="absolute inset-0 bg-black">
+             <img src="https://imgur.com/69CA3fS.jpg" class="w-full h-full object-cover opacity-80" alt="Pudim Artesanal">
+        </div>
+        
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-colonial-wood via-colonial-wood/40 to-transparent pointer-events-none"></div>
+
+        <div class="absolute inset-0 flex flex-col items-center justify-center z-10 px-4 fade-in-section text-center">
+            <div class="border-y-2 border-colonial-gold/50 py-6 px-4 md:px-12 bg-colonial-wood/30 backdrop-blur-[2px]">
+                <h1 class="font-serif text-4xl md:text-7xl font-bold text-white mb-2 drop-shadow-2xl tracking-wider">
+                    Pudim de Leite
+                </h1>
+                <p class="font-sans text-colonial-gold text-sm md:text-xl tracking-[0.3em] uppercase drop-shadow-md">
+                    O Sabor da Nostalgia
+                </p>
+            </div>
+            <a href="#tradicional" class="mt-10 bg-colonial-gold text-colonial-wood px-10 py-4 rounded-sm font-serif font-bold text-lg hover:bg-white hover:text-colonial-wood transition shadow-[0_0_20px_rgba(197,160,89,0.3)] transform hover:-translate-y-1 border border-colonial-gold">
+                Ver Cardápio
+            </a>
+        </div>
+    </header>
+
+    <!-- 1. Tradicional (Imagem 2) -->
+    <section id="tradicional" class="py-20 md:py-32 bg-colonial-white relative z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <!-- Imagem -->
+                <div class="w-full md:w-1/2 fade-in-section cursor-pointer group order-1" onclick="openDetails('tradicional')">
+                    <div class="relative px-4 md:px-0 floating-container">
+                        <!-- Moldura -->
+                        <div class="classic-frame relative overflow-hidden rounded-sm bg-gray-200 aspect-[4/3] md:aspect-square transform rotate-1 group-hover:rotate-0 transition duration-500">
+                            <img src="https://imgur.com/jh2lDB0.jpg" alt="Pudim Tradicional" class="w-full h-full object-cover sepia-[0.1] hover:sepia-0 transition duration-700 transform hover:scale-105">
+                            
+                            <!-- Botão Detalhes -->
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition duration-300">
+                                <span class="border border-white text-white px-6 py-2 font-serif uppercase tracking-widest text-sm bg-black/20 backdrop-blur-sm">Detalhes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Texto -->
+                <div class="w-full md:w-1/2 fade-in-section order-2 text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start gap-3 mb-4">
+                        <div class="h-[1px] w-12 bg-colonial-gold"></div>
+                        <span class="text-colonial-gold font-bold tracking-widest uppercase text-xs font-sans">Receita Original</span>
+                        <div class="h-[1px] w-12 bg-colonial-gold md:hidden"></div>
+                    </div>
+                    <h2 class="font-serif text-4xl md:text-5xl font-bold text-colonial-wood mb-6">O Clássico da Vovó</h2>
+                    <p class="font-sans text-lg text-gray-600 mb-8 leading-relaxed font-light">
+                        Feito lentamente em banho-maria, como antigamente. Sem furinhos, textura aveludada e uma calda de caramelo queimado que desperta memórias.
+                    </p>
+                    <div class="flex items-center justify-center md:justify-start gap-6 border-t border-gray-200 pt-6">
+                        <span class="font-serif text-3xl text-colonial-wood">R$ 35,00</span>
+                        <button onclick="openDetails('tradicional')" class="group flex items-center gap-2 text-colonial-gold font-bold hover:text-colonial-wood transition uppercase tracking-wider text-sm">
+                            Encomendar <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Divisória Decorativa -->
+    <div class="h-16 bg-colonial-wood w-full flex items-center justify-center overflow-hidden relative">
+        <div class="absolute w-full h-[1px] bg-colonial-gold/30"></div>
+        <div class="bg-colonial-wood px-4 z-10 text-colonial-gold">
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+        </div>
+    </div>
+
+    <!-- 2. Gourmet (Imagem 3) -->
+    <section id="gourmet" class="py-20 md:py-32 bg-colonial-wood text-colonial-white relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col-reverse md:flex-row items-center gap-10 md:gap-16">
+                <!-- Texto -->
+                <div class="w-full md:w-1/2 fade-in-section text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start gap-3 mb-4">
+                        <div class="h-[1px] w-12 bg-colonial-gold"></div>
+                        <span class="text-colonial-gold font-bold tracking-widest uppercase text-xs font-sans">Seleção Especial</span>
+                        <div class="h-[1px] w-12 bg-colonial-gold md:hidden"></div>
+                    </div>
+                    <h2 class="font-serif text-4xl md:text-5xl font-bold mb-6 text-white">Doce de Leite Rústico</h2>
+                    <p class="font-sans text-lg text-gray-300 mb-8 leading-relaxed font-light">
+                        Uma variação intensa e cremosa. Utilizamos doce de leite artesanal argentino na base, resultando em uma cor âmbar profunda e sabor inigualável.
+                    </p>
+                    <div class="flex items-center justify-center md:justify-start gap-6 border-t border-white/10 pt-6">
+                        <span class="font-serif text-3xl text-white">R$ 45,00</span>
+                        <button onclick="openDetails('gourmet')" class="group flex items-center gap-2 text-colonial-gold font-bold hover:text-white transition uppercase tracking-wider text-sm">
+                            Encomendar <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- Imagem -->
+                <div class="w-full md:w-1/2 fade-in-section cursor-pointer group" onclick="openDetails('gourmet')">
+                    <div class="relative px-4 md:px-0 floating-container" style="animation-delay: -3s;">
+                        <div class="classic-frame relative overflow-hidden rounded-sm bg-gray-800 aspect-[4/3] md:aspect-square transform -rotate-1 group-hover:rotate-0 transition duration-500 border-gray-600">
+                            <img src="https://imgur.com/S6m621C.jpg" alt="Pudim Gourmet" class="w-full h-full object-cover hover:scale-105 transition duration-700">
+                             <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition duration-300">
+                                <span class="border border-white text-white px-6 py-2 font-serif uppercase tracking-widest text-sm bg-black/20 backdrop-blur-sm">Detalhes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Divisória Decorativa -->
+    <div class="h-16 bg-colonial-white w-full flex items-center justify-center overflow-hidden relative border-b border-colonial-gold/20">
+        <div class="absolute w-full h-[1px] bg-colonial-wood/10"></div>
+        <div class="bg-colonial-white px-4 z-10 text-colonial-wood">
+            <i data-lucide="wheat" class="w-5 h-5"></i>
+        </div>
+    </div>
+
+    <!-- 3. Supremo (Imagem 4) -->
+    <section id="supremo" class="py-20 md:py-32 bg-colonial-white relative z-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <!-- Imagem -->
+                <div class="w-full md:w-1/2 fade-in-section cursor-pointer group order-1" onclick="openDetails('supremo')">
+                    <div class="relative px-4 md:px-0 floating-container">
+                        <div class="classic-frame relative overflow-hidden rounded-sm bg-gray-200 aspect-[4/3] md:aspect-square transform rotate-1 group-hover:rotate-0 transition duration-500">
+                            <img src="https://imgur.com/TEvsaWw.jpg" alt="Pudim Supremo" class="w-full h-full object-cover hover:scale-105 transition duration-700">
+                             <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition duration-300">
+                                <span class="border border-white text-white px-6 py-2 font-serif uppercase tracking-widest text-sm bg-black/20 backdrop-blur-sm">Detalhes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Texto -->
+                <div class="w-full md:w-1/2 fade-in-section order-2 text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start gap-3 mb-4">
+                        <div class="h-[1px] w-12 bg-colonial-gold"></div>
+                        <span class="text-colonial-gold font-bold tracking-widest uppercase text-xs font-sans">Edição do Chef</span>
+                        <div class="h-[1px] w-12 bg-colonial-gold md:hidden"></div>
+                    </div>
+                    <h2 class="font-serif text-4xl md:text-5xl font-bold text-colonial-wood mb-6">Chocolate Belga & Café</h2>
+                    <p class="font-sans text-lg text-gray-600 mb-8 leading-relaxed font-light">
+                        A união sofisticada do cacau nobre com notas sutis de café expresso torrado na hora. Uma sobremesa densa para paladares exigentes.
+                    </p>
+                    <div class="flex items-center justify-center md:justify-start gap-6 border-t border-gray-200 pt-6">
+                        <span class="font-serif text-3xl text-colonial-wood">R$ 50,00</span>
+                        <button onclick="openDetails('supremo')" class="group flex items-center gap-2 text-colonial-gold font-bold hover:text-colonial-wood transition uppercase tracking-wider text-sm">
+                            Encomendar <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-colonial-wood text-colonial-tan py-12 border-t-4 border-colonial-gold relative z-20">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-center md:justify-start gap-2">
+                    <div class="bg-colonial-gold p-1 rounded-full">
+                        <i data-lucide="utensils-crossed" class="text-colonial-wood w-4 h-4"></i>
+                    </div>
+                    <span class="font-serif text-xl font-bold text-white uppercase tracking-widest">Pudim de Leite</span>
+                </div>
+                <p class="text-xs opacity-60 font-sans max-w-xs">Feito à mão, com ingredientes selecionados e muito tempo de forno.</p>
+            </div>
+            <div class="text-sm font-light">
+                &copy; 2024 Pudim de Leite. <br class="md:hidden"> WhatsApp: (84) 99978-0963
+            </div>
+        </div>
+    </footer>
+
+    <!-- PRODUCT DETAIL MODAL -->
+    <div id="product-modal" class="modal hidden fixed inset-0 z-[60] flex items-center justify-center p-2 md:p-4">
+        <div class="absolute inset-0 bg-colonial-wood/90 backdrop-blur-sm" onclick="closeModal('product-modal')"></div>
+        <div class="modal-content bg-colonial-white rounded-sm shadow-2xl w-full max-w-4xl overflow-hidden relative flex flex-col md:flex-row h-auto max-h-[90vh] border border-colonial-gold">
+            <button onclick="closeModal('product-modal')" class="absolute top-3 right-3 z-20 bg-black/10 hover:bg-black/20 p-2 rounded-full transition text-colonial-wood">
+                <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
+            </button>
+            
+            <div class="w-full md:w-1/2 bg-gray-100 relative h-48 md:h-auto flex-shrink-0">
+                <img id="modal-img" src="" alt="Produto" class="w-full h-full object-cover">
+            </div>
+            
+            <div class="w-full md:w-1/2 p-6 md:p-12 flex flex-col bg-colonial-white overflow-y-auto custom-scrollbar">
+                <span id="modal-category" class="text-colonial-gold font-bold uppercase text-xs tracking-widest mb-2 border-b border-colonial-gold/30 w-fit pb-1"></span>
+                <h3 id="modal-title" class="font-serif text-3xl md:text-4xl font-bold text-colonial-wood mb-4"></h3>
+                <p id="modal-desc" class="text-base text-gray-600 mb-8 leading-relaxed font-light font-sans"></p>
+                
+                <div class="flex items-center justify-between md:justify-start gap-6 mb-8 mt-auto md:mt-0">
+                    <span id="modal-price" class="text-2xl md:text-3xl font-serif text-colonial-wood"></span>
+                    <div class="flex items-center border border-colonial-wood/20 rounded-sm px-2 py-1 bg-white">
+                        <button onclick="adjustQty(-1)" class="p-2 text-gray-500 hover:text-colonial-wood transition"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                        <span id="modal-qty" class="px-3 font-bold text-colonial-wood w-8 text-center select-none font-serif">1</span>
+                        <button onclick="adjustQty(1)" class="p-2 text-gray-500 hover:text-colonial-wood transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <button onclick="addToCartCurrent()" class="w-full bg-colonial-wood hover:bg-black text-white font-bold py-3 md:py-4 rounded-sm shadow-md transform transition active:scale-95 flex justify-center gap-2 items-center text-sm uppercase tracking-widest border border-colonial-wood">
+                        <i data-lucide="shopping-basket" class="w-5 h-5 text-colonial-gold"></i> Adicionar
+                    </button>
+                    <button onclick="closeModal('product-modal')" class="w-full text-gray-500 hover:text-colonial-wood py-2 font-medium text-xs uppercase tracking-widest transition border border-transparent hover:border-gray-200">
+                        Continuar Comprando
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CART MODAL -->
+    <div id="cart-modal" class="modal hidden fixed inset-0 z-[60] flex justify-end">
+        <div class="absolute inset-0 bg-colonial-wood/60 backdrop-blur-sm transition-opacity" onclick="closeCart()"></div>
+        <div class="modal-content w-full max-w-md bg-colonial-white h-full shadow-2xl relative flex flex-col transform translate-x-0 transition-transform duration-300 border-l-4 border-colonial-gold">
+            
+            <!-- Cart Header -->
+            <div class="p-4 md:p-6 border-b border-colonial-gold/20 flex justify-between items-center bg-colonial-white">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="shopping-basket" class="text-colonial-wood w-6 h-6"></i>
+                    <h2 class="font-serif text-xl md:text-2xl font-bold text-colonial-wood">Seu Pedido</h2>
+                </div>
+                <button onclick="closeCart()" class="text-gray-400 hover:text-colonial-wood transition p-2 hover:bg-gray-100 rounded-full">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Cart Items -->
+            <div id="cart-items" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar bg-[#FAFAF5]">
+                <!-- Items injected via JS -->
+            </div>
+
+            <!-- Cart Footer -->
+            <div class="p-4 md:p-6 border-t border-colonial-gold/20 bg-white">
+                <div class="mb-4 md:mb-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 font-sans">Seu Nome *</label>
+                        <input type="text" id="customer-name" class="w-full px-4 py-3 border-b-2 border-gray-200 bg-transparent focus:border-colonial-wood focus:outline-none text-sm transition-all rounded-none font-serif placeholder-gray-300" placeholder="Ex: Maria Silva">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 font-sans">Endereço *</label>
+                        <textarea id="customer-address" rows="2" class="w-full px-4 py-3 border-b-2 border-gray-200 bg-transparent focus:border-colonial-wood focus:outline-none resize-none text-sm transition-all rounded-none font-serif placeholder-gray-300" placeholder="Rua, Número, Bairro..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 font-sans">Pagamento *</label>
+                        <select id="payment-method" class="w-full px-4 py-3 border-b-2 border-gray-200 bg-transparent focus:border-colonial-wood focus:outline-none text-sm cursor-pointer rounded-none font-serif text-colonial-wood">
+                            <option value="" disabled selected>Selecione...</option>
+                            <option value="PIX">PIX (Chave Celular)</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-6 text-lg border-t border-dashed border-gray-300 pt-4">
+                    <span class="font-serif text-gray-500">Total Estimado</span>
+                    <span id="cart-total" class="font-serif font-bold text-2xl text-colonial-wood">R$ 0,00</span>
+                </div>
+                <button onclick="checkoutWhatsApp()" id="btn-checkout" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-4 rounded-sm shadow-lg transform transition active:scale-95 flex justify-center items-center gap-2 text-sm uppercase tracking-widest">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i> Finalizar no WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        // --- Setup ---
+        lucide.createIcons();
+
+        // Database (Updated with Colonial Theme Images)
+        const products = {
+            'tradicional': {
+                id: 'tradicional',
+                title: 'Pudim Clássico da Vovó',
+                category: 'Receita Original',
+                price: 35.00,
+                desc: 'A receita clássica elevada à perfeição. Sem furinhos, extremamente liso e banhado em uma calda de caramelo dourada feita no ponto certo.',
+                img: 'https://imgur.com/jh2lDB0.jpg' // Imagem 2
+            },
+            'gourmet': {
+                id: 'gourmet',
+                title: 'Doce de Leite Rústico',
+                category: 'Seleção Especial',
+                price: 45.00,
+                desc: 'Uma variação intensa e cremosa. Utilizamos doce de leite artesanal argentino na base, resultando em uma cor âmbar profunda.',
+                img: 'https://imgur.com/S6m621C.jpg' // Imagem 3
+            },
+            'supremo': {
+                id: 'supremo',
+                title: 'Chocolate Belga & Café',
+                category: 'Edição do Chef',
+                price: 50.00,
+                desc: 'A união sofisticada do cacau nobre com notas sutis de café expresso torrado na hora.',
+                img: 'https://imgur.com/TEvsaWw.jpg' // Imagem 4
+            }
+        };
+
+        // State & Persistence
+        let cart = JSON.parse(localStorage.getItem('pudim_cart')) || [];
+        let currentModalProduct = null;
+        let currentQty = 1;
+
+        updateCartUI();
+
+        function saveCart() {
+            localStorage.setItem('pudim_cart', JSON.stringify(cart));
+        }
+
+        // --- Toast Notification System ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const colors = type === 'error' ? 'bg-red-800' : 'bg-colonial-wood';
+            const icon = type === 'error' ? 'alert-circle' : 'check-circle';
+
+            toast.className = `toast flex items-center gap-3 ${colors} text-white px-6 py-4 shadow-2xl min-w-[300px] border-l-4 border-colonial-gold`;
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0 text-colonial-gold"></i>
+                <span class="font-serif tracking-wide text-sm">${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.style.transform = 'translateX(120%)';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // --- Mobile Menu ---
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('flex');
+        }
+
+        // --- Details Modal Logic ---
+        function openDetails(productId) {
+            const product = products[productId];
+            if(!product) return;
+
+            currentModalProduct = product;
+            currentQty = 1;
+
+            const modalImg = document.getElementById('modal-img');
+            modalImg.style.opacity = '0';
+            modalImg.src = product.img;
+            modalImg.onload = () => { modalImg.style.transition='opacity 0.5s'; modalImg.style.opacity='1'; }
+
+            document.getElementById('modal-category').innerText = product.category;
+            document.getElementById('modal-title').innerText = product.title;
+            document.getElementById('modal-desc').innerText = product.desc;
+            document.getElementById('modal-price').innerText = formatCurrency(product.price);
+            document.getElementById('modal-qty').innerText = currentQty;
+
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function adjustQty(change) {
+            if (currentQty + change >= 1) {
+                currentQty += change;
+                document.getElementById('modal-qty').innerText = currentQty;
+            }
+        }
+
+        // --- Cart Logic ---
+        function addToCartCurrent() {
+            if (!currentModalProduct) return;
+            addToCart(currentModalProduct, currentQty);
+            closeModal('product-modal');
+            showToast(`${currentModalProduct.title} adicionado!`);
+        }
+
+        function addToCart(product, qty) {
+            const existingItem = cart.find(item => item.id === product.id);
+            if (existingItem) {
+                existingItem.qty += qty;
+            } else {
+                cart.push({ ...product, qty: qty });
+            }
+            saveCart();
+            updateCartUI();
+        }
+
+        function updateCartItemQty(productId, change) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            const newQty = item.qty + change;
+            
+            if (newQty > 0) {
+                item.qty = newQty;
+            } else {
+                if(confirm('Remover este item do pedido?')) {
+                    removeFromCart(productId);
+                    return;
+                } else {
+                    return;
+                }
+            }
+            saveCart();
+            updateCartUI();
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            saveCart();
+            updateCartUI();
+            showToast('Item removido.', 'error');
+        }
+
+        function updateCartUI() {
+            const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
+            const badges = [document.getElementById('cart-badge'), document.getElementById('mobile-cart-badge')];
+            
+            badges.forEach(badge => {
+                badge.innerText = totalItems;
+                if(totalItems > 0) {
+                    badge.classList.remove('opacity-0');
+                    badge.classList.add('scale-100');
+                } else {
+                    badge.classList.add('opacity-0');
+                }
+            });
+
+            const listContainer = document.getElementById('cart-items');
+            if (cart.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center text-gray-400 mt-20 flex flex-col items-center">
+                        <div class="bg-gray-200 p-4 rounded-full mb-4">
+                            <i data-lucide="shopping-basket" class="w-8 h-8 opacity-50 text-colonial-wood"></i>
+                        </div>
+                        <p class="font-serif text-colonial-wood">Sua cesta está vazia.</p>
+                        <button onclick="closeCart()" class="mt-4 text-colonial-gold font-bold hover:underline font-serif text-sm uppercase tracking-wider">Ver Cardápio</button>
+                    </div>`;
+            } else {
+                listContainer.innerHTML = cart.map(item => `
+                    <div class="flex gap-4 items-center bg-white border border-gray-200 p-3 shadow-sm">
+                        <img src="${item.img}" class="w-16 h-16 object-cover flex-shrink-0 border border-gray-100">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-serif font-bold text-sm text-colonial-wood truncate">${item.title}</h4>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-colonial-gold font-bold text-sm">${formatCurrency(item.price * item.qty)}</span>
+                                
+                                <div class="flex items-center border border-gray-200 px-1 h-7">
+                                    <button onclick="updateCartItemQty('${item.id}', -1)" class="w-6 flex justify-center text-gray-400 hover:text-colonial-wood"><i data-lucide="minus" class="w-3 h-3"></i></button>
+                                    <span class="text-xs font-bold w-6 text-center text-colonial-wood font-serif">${item.qty}</span>
+                                    <button onclick="updateCartItemQty('${item.id}', 1)" class="w-6 flex justify-center text-gray-400 hover:text-colonial-wood"><i data-lucide="plus" class="w-3 h-3"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart('${item.id}')" class="text-gray-300 hover:text-red-800 p-2 transition-colors self-start">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            lucide.createIcons();
+
+            const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            document.getElementById('cart-total').innerText = formatCurrency(total);
+        }
+
+        function openCart() {
+            document.getElementById('cart-modal').classList.remove('hidden');
+        }
+
+        function closeCart() {
+            document.getElementById('cart-modal').classList.add('hidden');
+        }
+
+        function checkoutWhatsApp() {
+            if (cart.length === 0) {
+                showToast("Sua cesta está vazia!", 'error');
+                return;
+            }
+
+            const nameInput = document.getElementById('customer-name');
+            const addressInput = document.getElementById('customer-address');
+            const paymentInput = document.getElementById('payment-method');
+            const btn = document.getElementById('btn-checkout');
+            
+            let isValid = true;
+            [nameInput, addressInput, paymentInput].forEach(input => {
+                if(!input.value) {
+                    input.classList.add('border-red-500', 'bg-red-50');
+                    input.parentElement.classList.add('animate-shake');
+                    setTimeout(() => input.parentElement.classList.remove('animate-shake'), 500);
+                    isValid = false;
+                } else {
+                    input.classList.remove('border-red-500', 'bg-red-50');
+                }
+            });
+
+            if(!isValid) {
+                showToast("Por favor, preencha seus dados.", 'error');
+                return;
+            }
+
+            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5"></i> Processando...';
+            lucide.createIcons();
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const phone = "5584999780963";
+                
+                let message = "*🍮 PEDIDO - PUDIM DE LEITE*\n";
+                message += "--------------------------------\n";
+                message += `👤 *Cliente:* ${nameInput.value.trim()}\n`;
+                message += `📍 *Endereço:* ${addressInput.value.trim()}\n`;
+                message += `💳 *Pagamento:* ${paymentInput.value}\n`;
+                message += "--------------------------------\n\n";
+                message += "*ITENS ESCOLHIDOS:*\n";
+                
+                cart.forEach(item => {
+                    message += `▪ ${item.qty}x ${item.title} - ${formatCurrency(item.price * item.qty)}\n`;
+                });
+
+                const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+                message += `\n💰 *TOTAL: ${formatCurrency(total)}*`;
+                message += `\n\nAguardo confirmação!`;
+
+                const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                window.open(url, '_blank');
+
+                btn.innerHTML = '<i data-lucide="message-circle" class="w-5 h-5"></i> Finalizar no WhatsApp';
+                btn.disabled = false;
+                lucide.createIcons();
+            }, 1000);
+        }
+
+        ['customer-name', 'customer-address', 'payment-method'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                this.classList.remove('border-red-500', 'bg-red-50');
+            });
+        });
+
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in-section').forEach(section => observer.observe(section));
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', toggleMenu);
+    </script>
+</body>
+</html>
